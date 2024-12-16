@@ -1,15 +1,11 @@
-const { Client } = require('pg');
-require('dotenv').config({ path: '../../.env'})
-
-const db = new Client({
-
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
-});
-
-db.connect()
-    .then(() => console.log('Connected to db'))
-        .catch((e) => console.log(e));
+import mongoose from 'mongoose';
+export const connectdb =async () =>{
+    try  {
+        await mongoose.connect('mongodb+srv://dubeysd:123321@cluster0.g1xz4.mongodb.net/project');
+        console.log("db connected");
+    }
+    catch(err){
+        console.log(err)
+        console.log("db not connected");
+    }
+}

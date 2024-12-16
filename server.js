@@ -4,6 +4,7 @@ import cors from "cors";
 import { Copilot } from "monacopilot";
 import userRouter from "./api/user_routes.js";
 import collabRouter from "./api/collab_routes.js";
+import {connectdb} from "./api/models/db.js";
 
 const app = express();
 const PORT = 4000;
@@ -43,8 +44,12 @@ app.post("/complete", async (req, res) => {
   }
 
   res.status(200).json({ completion });
-});
+})
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
+  connectdb()
 });
