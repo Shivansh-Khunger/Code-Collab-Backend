@@ -1,8 +1,8 @@
 import express from "express";
 import userModel from "./models/userModel.js";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import sendGreetMail from "../helper/mailService.js";
-import crypto from "crypto"
+import crypto from "crypto";
 import nodemailer from "nodemailer";
 
 const generateOTP = () => {
@@ -19,7 +19,7 @@ userRouter.post("/signup", async (req, res) => {
 
     // Check if user already exists
     const existingUser = await userModel.findOne({ email: email });
-    
+
     // If user exists, return early with a 409 Conflict status
     if (existingUser) {
       return res.status(409).json({
@@ -35,7 +35,7 @@ userRouter.post("/signup", async (req, res) => {
     const newUser = new userModel({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     // Save user to database
@@ -44,11 +44,11 @@ userRouter.post("/signup", async (req, res) => {
     if (email && name) {
       try {
         await sendGreetMail(email, name);
-        console.log('Greeting email sent!');
+        console.log("Greeting email sent!");
       } catch (error) {
-        console.error('Error sending email:', error);
+        console.error("Error sending email:", error);
 
-        return res.status(500).send('Failed to send greeting email');
+        return res.status(500).send("Failed to send greeting email");
       }
     }
 
@@ -58,19 +58,18 @@ userRouter.post("/signup", async (req, res) => {
       user: {
         id: newUser._id,
         name: newUser.name,
-        email: newUser.email
-      }
+        email: newUser.email,
+      },
     });
-
   } catch (error) {
     // Handle any errors that occur during the signup process
     console.error("Signup error:", error);
 
     // Check for specific mongoose validation errors
-    if (error.name === 'ValidationError') {
+    if (error.name === "ValidationError") {
       return res.status(400).json({
         message: "Invalid user data",
-        errors: Object.values(error.errors).map(err => err.message)
+        errors: Object.values(error.errors).map((err) => err.message),
       });
     }
 
@@ -84,7 +83,7 @@ userRouter.post("/signup", async (req, res) => {
     // Generic server error for any other unexpected errors
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -116,40 +115,39 @@ userRouter.post("/signin", async (req, res) => {
     // Successful signin
     res.status(200).json({
       message: "Signin successful",
+      userName: existingUser.name,
     });
-
   } catch (error) {
-    
     console.error("Signin error:", error);
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 });
 
 const otp = generateOTP();
 userRouter.post("/sendotp", async (req, res) => {
-  try{
-    const {email} = req.body;
+  try {
+    const { email } = req.body;
     if (!email) {
       return res.status(400).json({
-        message: "Email is required"
+        message: "Email is required",
       });
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth:{
-        user: 'amber1251.be22@chitkara.edu.in',
-        pass: 'dhamaamber@5678'
-      }
-    })
+      service: "gmail",
+      auth: {
+        user: "amber1251.be22@chitkara.edu.in",
+        pass: "dhamaamber@5678",
+      },
+    });
 
     const mailOptions = {
-      from: 'amber1251.be22@chitkara.edu.in',
+      from: "amber1251.be22@chitkara.edu.in",
       to: email,
-      subject: 'Password Reset',
+      subject: "Password Reset",
       html: `
             <!DOCTYPE html>
 <html lang="en">
@@ -294,39 +292,38 @@ userRouter.post("/sendotp", async (req, res) => {
     </div>
 </body>
 </html>
-        `
-    }
-   
-    transporter.sendMail(mailOptions,(err,info)=>{
-      if(err){
-        console.log(err)
+        `,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log(err);
         return res.status(500).json({
-          msg:"Failed to send email "
-        })
+          msg: "Failed to send email ",
+        });
       }
-      
 
       res.status(200).json({
-        msg:"Otp send successfully",
-        otp
-      })
-    })
-  }catch (e) {
-    console.log(e)
+        msg: "Otp send successfully",
+        otp,
+      });
+    });
+  } catch (e) {
+    console.log(e);
     res.status(500).json({
-      msg:"Internal server error"
-    })   
+      msg: "Internal server error",
+    });
   }
 });
 
-userRouter.post("/resetPassword", async (req, res)=> {
+userRouter.post("/resetPassword", async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
 
     // Validate input
     if (!email || !otp || !newPassword) {
       return res.status(400).json({
-        message: "Email, OTP, and new password are required"
+        message: "Email, OTP, and new password are required",
       });
     }
 
@@ -336,11 +333,10 @@ userRouter.post("/resetPassword", async (req, res)=> {
     // Check if user exists
     if (!existingUser) {
       return res.status(404).json({
-        message: "User does not exist"
+        message: "User does not exist",
       });
     }
 
-    
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
@@ -350,14 +346,13 @@ userRouter.post("/resetPassword", async (req, res)=> {
 
     // Send successful response
     res.status(200).json({
-      message: "Password reset successful"
+      message: "Password reset successful",
     });
-
   } catch (error) {
     console.error("Password reset error:", error);
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -368,38 +363,34 @@ userRouter.post("/verifyotp", async (req, res) => {
 
     // Validate input
     if (!email || !otp) {
-      
       return res.status(400).json({
-        message: "Email and OTP are required"
+        message: "Email and OTP are required",
       });
     }
 
     const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: "User not found",
       });
     }
     console.log(otp, otp);
     if (otp === otp) {
-      
       res.status(200).json({
-        message: "OTP verified successfully"
+        message: "OTP verified successfully",
       });
     } else {
       res.status(400).json({
-        message: "Invalid OTP"
+        message: "Invalid OTP",
       });
     }
-
   } catch (error) {
     console.error("OTP verification error:", error);
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 });
-
 
 export default userRouter;
