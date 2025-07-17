@@ -34,11 +34,6 @@ temp/
 coverage/
 *.lcov
 
-# Docker
-Dockerfile*
-docker-compose*.yml
-.dockerignore
-
 # Misc
 *.tgz
 npm-debug.log*
