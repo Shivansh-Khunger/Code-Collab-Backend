@@ -1,13 +1,13 @@
-// HTTP Server Setup
 import express from "express";
 import cors from "cors";
-import { Copilot } from "monacopilot";
+import "dotenv/config";
+import { CompletionCopilot } from "monacopilot";
 import userRouter from "./api/user_routes.js";
 import collabRouter from "./api/collab_routes.js";
-import {connectdb} from "./api/models/db.js";
+import { connectdb } from "./api/models/db.js";
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -21,9 +21,9 @@ app.get("/", (req, res) => {
   });
 });
 
-const copilot = new Copilot("AIzaSyC - KojYDu7jGuMdJPjKYBMQPYM4ASXCqxA", {
-  provider: "google",
-  model: "gemini-1.5-flash",
+const copilot = new CompletionCopilot(process.env.MISTRAL_API_KEY, {
+  provider: "mistral",
+  model: "codestral",
 });
 
 app.post("/complete", async (req, res) => {
@@ -31,25 +31,15 @@ app.post("/complete", async (req, res) => {
     body: req.body,
   });
 
-  // Process raw LLM response if needed
-  // `raw` can be undefined if an error occurred, which happens when `error` is present
-//   if (raw) {
-//     await calculateCost(raw.usage.input_tokens);
-//   }
-
-  // Handle errors if present
   if (error) {
     console.error("Completion error:", error);
-    res.status(500).json({ completion: null, error });
+    return res.status(500).json({ completion: null, error });
   }
 
   res.status(200).json({ completion });
-})
+});
 
-
-
-
-app.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server listening on ${PORT}`);
-  connectdb()
+  connectdb();
 });
