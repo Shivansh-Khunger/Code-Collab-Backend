@@ -39,7 +39,7 @@ app.post("/complete", async (req, res) => {
   res.status(200).json({ completion });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server listening on ${PORT}`);
   connectdb();
 });
