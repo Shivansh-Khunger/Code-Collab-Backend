@@ -22,4 +22,4 @@ ENV NODE_ENV=production
 ENV CORS_ORIGIN=*
 
 # Start the WebSocket server
-CMD ["node", "websocket/ws-server.js"]
+CMD ["node", "ws-server.js"]
