@@ -1,7 +1,7 @@
 // WS Server Setup
 import { Server } from "socket.io";
 
-const PORT = process.env.WS_PORT || 4001;
+const PORT = process.env.PORT || 4001;
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:4000";
 
 const io = new Server(PORT, {
